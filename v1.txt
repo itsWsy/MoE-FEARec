@@ -1,0 +1,283 @@
+﻿你是一名推荐系统研究员，请基于FEARec官方PyTorch代码实现第一版改进模型：
+
+FEARec + MultiIntentExtractor
+
+
+目标：
+
+验证多意图提取模块是否能够增强FEARec。
+
+
+============================
+
+一、保持FEARec不变
+
+============================
+
+必须保留：
+
+- Fourier transform frequency enhancement
+- frequency filter
+- self-attention encoder
+- original prediction layer
+
+
+不要修改FEARec核心结构。
+
+
+新增模型：
+
+models/FEARec_MI.py
+
+
+
+============================
+
+二、加入MultiIntentExtractor
+
+============================
+
+
+参考论文：
+
+TASeqRec:
+Learning users’ topical interests for sequential recommendation
+
+
+实现思想：
+
+利用latent intent embeddings作为多个兴趣中心。
+
+
+输入：
+
+FEARec encoder输出：
+
+hidden_states
+
+shape:
+
+(batch, seq_len, hidden_dim)
+
+
+
+输出：
+
+intent representations:
+
+(batch,num_intents,hidden_dim)
+
+
+
+============================
+
+三、Intent Embedding
+
+============================
+
+
+增加：
+
+learnable intent embedding:
+
+
+self.intent_embedding
+
+
+shape:
+
+[num_intents, hidden_dim]
+
+
+默认：
+
+num_intents=4
+
+
+
+============================
+
+四、Intent Attention
+
+============================
+
+
+计算：
+
+attention score:
+
+score = hidden_states @ intent_embedding.T
+
+
+softmax over sequence dimension
+
+
+得到：
+
+(batch,num_intents,seq_len)
+
+
+
+============================
+
+五、Intent Representation
+
+============================
+
+
+每个兴趣：
+
+intent_k
+
+=
+
+sum(attention_k_i * hidden_i)
+
+
+
+输出：
+
+(batch,num_intents,hidden_dim)
+
+
+
+============================
+
+六、Interest Fusion
+
+============================
+
+
+使用attention fusion：
+
+MLP:
+
+hidden_dim
+
+↓
+
+num_intents
+
+
+softmax
+
+
+得到兴趣权重。
+
+
+最终：
+
+user_embedding
+
+=
+
+sum(weight_k*intent_k)
+
+
+
+============================
+
+七、Prediction
+
+============================
+
+
+保持FEARec预测方式：
+
+
+score=user_embedding @ item_embedding.T
+
+
+
+============================
+
+八、训练要求
+
+============================
+
+
+保持原loss：
+
+BPR或者CE
+
+
+不要加入额外loss。
+
+
+
+============================
+
+九、参数增加
+
+============================
+
+
+增加：
+
+--num_intents
+
+default=4
+
+
+
+============================
+
+十、实验输出
+
+============================
+
+
+训练过程中打印：
+
+1.
+
+intent attention distribution
+
+
+例如：
+
+User0:
+
+intent1 0.7
+
+intent2 0.2
+
+intent3 0.08
+
+intent4 0.02
+
+
+
+2.
+
+loss下降曲线
+
+
+3.
+
+HR@5 HR@10 NDCG@5 NDCG@10
+
+
+
+============================
+
+十一、实验目标
+
+============================
+
+
+首先确认：
+
+1.
+loss能够正常下降
+
+
+2.
+HR/NDCG不低于FEARec baseline
+
+
+3.
+输出intent visualization
+
+
+完成代码。
