@@ -13,7 +13,8 @@ class RecDataset(Dataset):
         self.max_len = args.max_seq_length
         self.user_ids = []
         self.contrastive_learning = args.model_type.lower() in [
-            'fearec', 'fearec_mi', 'moe_fearec', 'duorec'
+            'fearec', 'fearec_mi', 'moe_fearec',
+            'fearec_mi_router', 'moe_fearec_v2', 'duorec'
         ]
         self.data_type = data_type
 

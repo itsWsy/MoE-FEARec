@@ -110,7 +110,10 @@ def parse_args():
         parser.add_argument("--ssl", default='us_x', type=str)
         parser.add_argument("--sim", default='dot', type=str)
 
-    elif args.model_type.lower() in ['fearec', 'fearec_mi', 'moe_fearec']:
+    elif args.model_type.lower() in [
+        'fearec', 'fearec_mi', 'moe_fearec',
+        'fearec_mi_router', 'moe_fearec_v2'
+    ]:
         parser.add_argument("--tau", default=1.0, type=float)
         parser.add_argument("--lmd", default=0.1, type=float)
         parser.add_argument("--lmd_sem", default=0.1, type=float)
@@ -120,9 +123,15 @@ def parse_args():
         parser.add_argument("--global_ratio", default=0.6, type=float)
         parser.add_argument("--fredom_type", default='us_x', type=str)
         parser.add_argument("--fredom", default='True', type=str) # use eval function to use as boolean
-        if args.model_type.lower() in ['fearec_mi', 'moe_fearec']:
+        if args.model_type.lower() in [
+            'fearec_mi', 'moe_fearec',
+            'fearec_mi_router', 'moe_fearec_v2'
+        ]:
             parser.add_argument("--num_intents", default=4, type=int,
                                 help="number of latent intent embeddings")
+        if args.model_type.lower() in ['fearec_mi_router', 'moe_fearec_v2']:
+            parser.add_argument("--lambda_balance", default=0.01, type=float,
+                                help="weight of the router balance KL loss")
 
     elif args.model_type.lower() == 'gru4rec':
         parser.add_argument("--gru_hidden_size", default=64, type=int, help="hidden size of GRU")

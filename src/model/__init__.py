@@ -19,6 +19,8 @@ _MODEL_SPECS = {
     "fearec": ("fearec", "FEARecModel"),
     "fearec_mi": ("FEARec_MI", "FEARecMIModel"),
     "moe_fearec": ("FEARec_MI", "FEARecMIModel"),
+    "fearec_mi_router": ("FEARec_MI_Router", "FEARecMIRouterModel"),
+    "moe_fearec_v2": ("FEARec_MI_Router", "FEARecMIRouterModel"),
 }
 
 
@@ -39,4 +41,3 @@ def _build_model_dict():
 
 
 MODEL_DICT = _build_model_dict()
-

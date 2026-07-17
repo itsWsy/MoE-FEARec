@@ -93,6 +93,22 @@ python main.py --model_type FEARec_MI \
                --train_name FEARec_MI_Beauty
 ```
 
+### FEARec + MultiIntentExtractor + Dynamic MoE Router
+
+The v2 model treats each intent as an expert and dynamically routes the latest
+FEARec sequence representation to those experts. `lambda_balance` controls the
+KL constraint between the batch-average routing distribution and a uniform
+distribution. Logs report the total loss, User0 router weights, balance loss,
+and HR/NDCG metrics.
+
+```
+python main.py --model_type FEARec_MI_Router \
+               --data_name Beauty \
+               --num_intents 4 \
+               --lambda_balance 0.01 \
+               --train_name FEARec_MI_Router_Beauty
+```
+
 ## Citation
 If you find our work useful, please consider citing our paper:
 ```

@@ -115,12 +115,21 @@ class Trainer:
             if hasattr(self.model, "get_intent_visualization"):
                 visualization = self.model.get_intent_visualization(user_index=0)
                 if visualization is not None:
-                    post_fix["User0 intent distribution"] = {
+                    distribution_name = (
+                        "User0 router weights"
+                        if "router_weights" in visualization
+                        else "User0 intent distribution"
+                    )
+                    post_fix[distribution_name] = {
                         "intent{}".format(index + 1): "{:.4f}".format(weight)
                         for index, weight in enumerate(
                             visualization["weights"].tolist()
                         )
                     }
+                    if "balance_loss" in visualization:
+                        post_fix["router_balance_loss"] = "{:.6f}".format(
+                            visualization["balance_loss"].item()
+                        )
 
             if (epoch + 1) % self.args.log_freq == 0:
                 self.logger.info(str(post_fix))
