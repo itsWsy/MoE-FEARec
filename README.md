@@ -98,8 +98,9 @@ python main.py --model_type FEARec_MI \
 The v2 model treats each intent as an expert and dynamically routes the latest
 FEARec sequence representation to those experts. `lambda_balance` controls the
 KL constraint between the batch-average routing distribution and a uniform
-distribution. Logs report the total loss, User0 router weights, balance loss,
-and HR/NDCG metrics.
+distribution. Its router MLP is `Linear(2D,D) -> ReLU -> Dropout(0.1) ->
+Linear(D,1)`. Each epoch logs User0 router weights from one randomly sampled
+training batch, balance loss, total loss, and HR/NDCG metrics.
 
 ```
 python main.py --model_type FEARec_MI_Router \

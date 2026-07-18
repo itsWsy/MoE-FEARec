@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class DynamicIntentRouter(nn.Module):
@@ -10,6 +11,7 @@ class DynamicIntentRouter(nn.Module):
         self.router = nn.Sequential(
             nn.Linear(2 * hidden_size, hidden_size),
             nn.ReLU(),
+            nn.Dropout(0.1),
             nn.Linear(hidden_size, 1),
         )
 
@@ -37,10 +39,11 @@ class DynamicIntentRouter(nn.Module):
         mean_alpha = routing_weights.mean(dim=0)
         uniform = torch.full_like(mean_alpha, 1.0 / num_intents)
         eps = torch.finfo(mean_alpha.dtype).eps
-        balance_loss = torch.sum(
-            mean_alpha * (
-                torch.log(mean_alpha.clamp_min(eps)) - torch.log(uniform)
-            )
+        # Follow the requested MoE load-balancing form. ``sum`` keeps the
+        # regularizer scale independent of the number of intent experts.
+        balance_loss = F.kl_div(
+            torch.log(mean_alpha.clamp_min(eps)),
+            uniform,
+            reduction="sum",
         )
         return user_emb, routing_weights, balance_loss
-

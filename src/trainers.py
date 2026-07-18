@@ -94,6 +94,10 @@ class Trainer:
         if train:
             self.model.train()
             rec_loss = 0.0
+            sampled_visualization = None
+            visualization_batch_index = None
+            if hasattr(self.model, "get_intent_visualization") and len(dataloader) > 0:
+                visualization_batch_index = np.random.randint(len(dataloader))
 
             for i, batch in rec_data_iter:
                 # 0. batch_data will be sent into the device(GPU or CPU)
@@ -107,14 +111,20 @@ class Trainer:
                 self.optim.step()
                 rec_loss += loss.item()
 
+                if i == visualization_batch_index:
+                    sampled_visualization = self.model.get_intent_visualization(
+                        user_index=0
+                    )
+
             post_fix = {
                 "epoch": epoch,
                 "rec_loss": '{:.4f}'.format(rec_loss / len(rec_data_iter)),
             }
 
             if hasattr(self.model, "get_intent_visualization"):
-                visualization = self.model.get_intent_visualization(user_index=0)
+                visualization = sampled_visualization
                 if visualization is not None:
+                    post_fix["router_sampled_batch"] = visualization_batch_index
                     distribution_name = (
                         "User0 router weights"
                         if "router_weights" in visualization
